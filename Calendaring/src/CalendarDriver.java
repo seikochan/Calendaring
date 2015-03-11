@@ -63,8 +63,13 @@ public class CalendarDriver {
 
 		Scanner scanner = new Scanner(System.in);
 		BufferedWriter writer;
+		boolean invalidInput = true;
+		boolean anotherEvent = false;
+		String newEventStr = "";
+		
 		String versionNum = "";
 		int classNum = 0;
+		String location = "";
 		
 		
 		System.out.println("Please provide the following information...\n");
@@ -83,62 +88,107 @@ public class CalendarDriver {
 			
 			writer.write("VERSION:" + versionNum +"\n");
 			
-			
-			//TODO Jasmine
-			//Classification  (3.8.1.3).  Note  this  is  a  way  of  users  designating  events  as  public  (default),  private,  or  confidential.
-			System.out.print("Classification\n"
-					+ "\t1)PUBLIC\n"
-					+ "\t2)PRIVATE\n"
-					+ "/t3)CONFIDENTIAL: ");
-			classNum = scanner.nextInt();
-			writer.write("CLASS:");
-				//TODO make a loop here
-			switch(classNum){
-				case 1:
-					writer.write("PUBLIC");
-					break;
-				case 2:
-					writer.write("PRIVATE");
-					break;
-				case 3:
-					writer.write("CONFIDENTIAL");
-					break;
-				default:
-					System.out.println("Invalid classification selected.  Please provide a number from 1-3.");
+			do {
+				//start a new event
+				writer.write("BEGIN:VEVENT\n");
+				
+				//TODO Jasmine
+				//Classification  (3.8.1.3).  
+				//Note  this  is  a  way  of  users  designating  events  as  public  (default),  private,  or  confidential.
+				writer.write("CLASS:");
+				invalidInput=true;
+				while (invalidInput) {	
+					invalidInput = false;
 					
-			}
+					System.out.print("Classification\n"
+							+ "\t1)PUBLIC\n"
+							+ "\t2)PRIVATE\n"
+							+ "\t3)CONFIDENTIAL: ");
+					classNum = scanner.nextInt();
+					//must get rid of trailing newline in scanner...
+					scanner.nextLine();				
+					
+					switch(classNum){
+					case 1:
+						writer.write("PUBLIC");
+						break;
+					case 2:
+						writer.write("PRIVATE");
+						break;
+					case 3:
+						writer.write("CONFIDENTIAL");
+						break;
+					default:
+						System.out.println("Invalid classification selected.  Please provide a number from 1-3.");	
+						invalidInput = true;
+					}
+				}
+				
+				writer.newLine();
+					//TODO what is iana-name and x-name?????
+				
+				
+				//TODO Jasmine
+				//Location  (3.8.1.7)
+				System.out.print("Location: ");
+				location = scanner.nextLine();
+					//TODO error checking?
+				
+				writer.write("LOCATION:");
+				writer.write(location);
+				writer.newLine();
+				
+				
+				
+				//TODO
+				//Priority  (3.8.1.9)
+				
+				
+				
+				//TODO
+				//Summary  (3.8.1.12)  
+				
+				
+				
+				//TODO
+				//for DTSTART  (3.8.2.4)  
+				
+				
+				
+				//TODO
+				//for DTEND  (3.8.2.2)  
+				
+				
+				
+				//TODO
+				//for Time  zone  identifier  (3.8.3.1,  and  whatever  other  sections  you  need  to  be able  to  specify  time  zone
 			
-			writer.write("\n");
-				//TODO what is iana-name and x-name?????
+				//end this event
+				writer.write("END:VEVENT\n");
+				
+				//prompt if the user would like to add another event
+				invalidInput=true;
+				while(invalidInput){
+					invalidInput=false;
+					System.out.print("\nWould you like to add another event? (y/n):");
+					newEventStr = scanner.nextLine();
+					if(newEventStr.equals("y")){
+						anotherEvent = true;
+					}else if(newEventStr.equals("n")){
+						anotherEvent = false;
+					}else{
+						System.out.println("Invalid input.  Please provide either 'y' or 'n'.");
+						invalidInput=true;
+					}
+				}
+				
+			}while (anotherEvent);
 			
+			System.out.println("BYE BYE!");
 			
-			//TODO Jasmine
-			//Location  (3.8.1.7)
+			writer.write("END:VCALENDAR\n");
+			writer.close();
 			
-			
-			
-			//TODO
-			//Priority  (3.8.1.9)
-			
-			
-			
-			//TODO
-			//Summary  (3.8.1.12)  
-			
-			
-			
-			//TODO
-			//for DTSTART  (3.8.2.4)  
-			
-			
-			
-			//TODO
-			//for DTEND  (3.8.2.2)  
-			
-			
-			
-			//TODO
-			//for Time  zone  identifier  (3.8.3.1,  and  whatever  other  sections  you  need  to  be able  to  specify  time  zone
 		} catch (InputMismatchException e){
 			System.out.println("Invalid input.  Please try again.\n");
 			System.err.println(e.getMessage());
@@ -147,6 +197,7 @@ public class CalendarDriver {
 			e.printStackTrace();
 		}
 		scanner.close();
+		
 	}
 
 }
