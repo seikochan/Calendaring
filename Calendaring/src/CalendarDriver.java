@@ -70,6 +70,16 @@ public class CalendarDriver {
     int classNum = 0;
     String location = "";
     
+    //TODO
+    //print a usageStr about this program
+    
+    //TODO
+    //split up all this (vvvvvvv)  into smaller methods that can be tested easier
+    
+    //TODO
+    //make prudier commenting
+    
+    
     System.out.println("Please provide the following information...\n");
     
     try {
