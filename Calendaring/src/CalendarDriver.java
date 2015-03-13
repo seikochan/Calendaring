@@ -66,10 +66,9 @@ public class CalendarDriver {
     boolean anotherEvent = false;
     String newEventStr = "";
     
-    String versionNum = "";
+    int versionNum = 0;
     int classNum = 0;
     String location = "";
-    
     
     System.out.println("Please provide the following information...\n");
     
@@ -79,13 +78,35 @@ public class CalendarDriver {
       
       
       //TODO  Jasmine
-      //Version (section  3.7.4  of  RFC  5545)  
-      System.out.print("Version: ");
-      versionNum = scanner.nextLine();
-      
-      //TODO error check here
-      
-      writer.write("VERSION:" + versionNum +"\n");
+      //Version (section  3.7.4  of  RFC  5545) 
+      writer.write("VERSION:");
+          
+      invalidInput = true;
+      while(invalidInput){
+    	  System.out.print("Version"
+    	      		+ "\n\t1) 1.0 - vCalendar Format"
+    	      		+ "\n\t2) 2.0 - iCalendar Format: ");
+
+    	  versionNum = scanner.nextInt();
+    	  scanner.nextLine();
+    	      
+    	  invalidInput=false;
+    	  switch(versionNum){
+    	  	case 1:
+    	  		System.out.println("Sorry we do not support vCalendar Format, "
+    	  				+ "please select a different version.");
+    	  		invalidInput=true;
+    	  		break;
+    	  	case 2:
+    	  		writer.write("2.0");
+    	  		break;
+    	  	default:
+    	  		System.out.println("Invalid Version selected.  Please select a number from 1-2.");
+    	  		invalidInput=true;
+    	  		break;
+    	  }
+      }
+      writer.newLine();
       
       do {
         //start a new event
