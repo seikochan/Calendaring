@@ -216,6 +216,25 @@ public class CalendarDriver {
       writer.newLine();
       System.out.println();
       
+    //=========================================
+      // Time zone identifier (3.8.3.1)
+      //=========================================
+      writer.write("BEGIN:VTIMEZONE\n");
+      
+      //TODO use TZDB
+      System.out.println("Time Zone, country? ex. America");
+      String country = scanner.nextLine();
+      System.out.println("Time Zone, region? (replace space with '_' ex. New_york");
+      String region = scanner.nextLine();
+      writer.write("TZID:" + country + "/" + region + "\n");
+      
+      writer.write("BEGIN:STANDARD\n");
+      writer.write("TZOFFSETFROM:-1000\n" 
+					+ "TZOFFSETTO:-1000\n"
+					+ "DTSTART:19700101T000000\n");
+      writer.write("END:STANDARD\n");
+      writer.write("END:VTIMEZONE\n");
+      
       do {
         // start a new event
         writer.write("BEGIN:VEVENT\n");
@@ -301,6 +320,9 @@ public class CalendarDriver {
         writer.newLine();
         System.out.println();
 
+        
+        
+        
         //=========================================
         // DTSTART (3.8.2.4)
         //=========================================
@@ -510,18 +532,6 @@ public class CalendarDriver {
         writer.newLine();
         System.out.println();
 
-        // TODO Alan
-        //=========================================
-        // for Time zone identifier (3.8.3.1)
-        //=========================================
-        System.out.println("Time Zone, country? ex. America");
-        scanner.nextLine();
-        String country = scanner.nextLine();
-        System.out.println("Time Zone, region? (replace space with '_' ex. New_york");
-        String region = scanner.nextLine();
-        writer.write("TZID:" + country + "/" + region);
-        writer.newLine();
-        System.out.println();
 
         // end this event
         writer.write("END:VEVENT\n");
