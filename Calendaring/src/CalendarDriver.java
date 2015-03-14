@@ -16,14 +16,38 @@ import java.text.*;
  * 
  * The following example specifies a group-scheduled meeting that begins at 8:30 AM EST on March 12, 1998 and ends at
  * 9:30 AM EST on March 12, 1998. The "Organizer" has scheduled the meeting with one or more calendar users in a group.
- * A time zone specification for Eastern United States has been specified. BEGIN:VCALENDAR PRODID:-//RDU
- * Software//NONSGML HandCal//EN VERSION:2.0 BEGIN:VTIMEZONE TZID:America/New_York BEGIN:STANDARD
- * DTSTART:19981025T020000 TZOFFSETFROM:-0400 TZOFFSETTO:-0500 TZNAME:EST END:STANDARD BEGIN:DAYLIGHT
- * DTSTART:19990404T020000 TZOFFSETFROM:-0500 TZOFFSETTO:-0400 TZNAME:EDT END:DAYLIGHT END:VTIMEZONE BEGIN:VEVENT
- * DTSTAMP:19980309T231000Z UID:guid-1.example.com ORGANIZER:mailto:mrbig@example.com
- * ATTENDEE;RSVP=TRUE;ROLE=REQ-PARTICIPANT;CUTYPE=GROUP: mailto:employee-A@example.com DESCRIPTION:Project XYZ Review
- * Meeting CATEGORIES:MEETING CLASS:PUBLIC CREATED:19980309T130000Z SUMMARY:XYZ Project Review
- * DTSTART;TZID=America/New_York:19980312T083000 DTEND;TZID=America/New_York:19980312T093000 LOCATION:1CP Conference
+ * A time zone specification for Eastern United States has been specified. 
+ * 
+ * BEGIN:VCALENDAR 
+ * PRODID:-//RDU Software//NONSGML HandCal//EN 
+ * VERSION:2.0 
+ * BEGIN:VTIMEZONE 
+ * TZID:America/New_York 
+ * BEGIN:STANDARD
+ * DTSTART:19981025T020000 
+ * TZOFFSETFROM:-0400 
+ * TZOFFSETTO:-0500 
+ * TZNAME:EST 
+ * END:STANDARD 
+ * BEGIN:DAYLIGHT
+ * DTSTART:19990404T020000 
+ * TZOFFSETFROM:-0500 
+ * TZOFFSETTO:-0400
+ * TZNAME:EDT 
+ * END:DAYLIGHT 
+ * END:VTIMEZONE 
+ * BEGIN:VEVENT
+ * DTSTAMP:19980309T231000Z 
+ * UID:guid-1.example.com 
+ * ORGANIZER:mailto:mrbig@example.com
+ * ATTENDEE;RSVP=TRUE;ROLE=REQ-PARTICIPANT;CUTYPE=GROUP: mailto:employee-A@example.com 
+ * DESCRIPTION:Project XYZ Review Meeting 
+ * CATEGORIES:MEETING 
+ * CLASS:PUBLIC 
+ * CREATED:19980309T130000Z 
+ * SUMMARY:XYZ Project Review
+ * DTSTART;
+ * TZID=America/New_York:19980312T083000 DTEND;TZID=America/New_York:19980312T093000 LOCATION:1CP Conference
  * Room 4350 END:VEVENT END:VCALENDAR
  * 
  * 
@@ -31,6 +55,13 @@ import java.text.*;
  */
 public class CalendarDriver {
 
+	private final static String DESC_STR = 
+			"==========================================================================\n"
+			+ "This program will help you create an iCalendar text file (.ics file) that \n"
+			+ "follows the Internet Calendaring and Scheduling Core Object Specification \n"
+			+ "(RFC 5545) found at https://tools.ietf.org/html/rfc5545.\n"
+			+ "=========================================================================\n";
+	
   public static boolean isValidDateStr(String date) {
     try {
       SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
@@ -47,7 +78,9 @@ public class CalendarDriver {
   }
   
   public static void main(String[] args) {
-    // TODO print description of program
+    // print description of program
+	System.out.println(DESC_STR);
+	  
     Calendar calendar = Calendar.getInstance();
     int thisYear = calendar.get(Calendar.YEAR)*10000;
     int thisMonth = (calendar.get(Calendar.MONTH) + 1)*100;
@@ -69,9 +102,6 @@ public class CalendarDriver {
     String location = "";
     
     //TODO
-    //print a usageStr about this program
-    
-    //TODO
     //split up all this (vvvvvvv)  into smaller methods that can be tested easier
     
     //TODO
@@ -84,8 +114,9 @@ public class CalendarDriver {
       writer = new BufferedWriter(new FileWriter(new File("event.ics")));
       writer.write("BEGIN:VCALENDAR\n");
       
-      //TODO  Jasmine
+      //=========================================
       //Version (section  3.7.4  of  RFC  5545) 
+      //=========================================
       writer.write("VERSION:");
           
       invalidInput = true;
@@ -114,14 +145,15 @@ public class CalendarDriver {
     	  }
       }
       writer.newLine();
+      System.out.println();
       
       do {
         // start a new event
         writer.write("BEGIN:VEVENT\n");
 
-        // TODO Jasmine
+        //=========================================
         // Classification (3.8.1.3).
-        // Note this is a way of users designating events as public (default), private, or confidential.
+        //=========================================
         writer.write("CLASS:");
         invalidInput = true;
         while (invalidInput) {
@@ -147,12 +179,13 @@ public class CalendarDriver {
             invalidInput = true;
           }
         }
-
         writer.newLine();
+        System.out.println();
         // TODO what is iana-name and x-name?????
 
-        // TODO Jasmine
+        //=========================================
         // Location (3.8.1.7)
+        //=========================================
         System.out.print("Location: ");
         location = scanner.nextLine();
         // TODO error checking?
@@ -160,15 +193,17 @@ public class CalendarDriver {
         writer.write("LOCATION:");
         writer.write(location);
         writer.newLine();
+        System.out.println();
 
-        // TODO Alan
+        //=========================================
         // Priority (3.8.1.9)
+        //=========================================
         int priority = 0;
         invalidInput = true;
         while (invalidInput) {
           try {
             invalidInput = false;
-            System.out.println("priority of event? 1 highest, 9 lowest, 0 undefined.");
+            System.out.println("PRIORITY (1-highest, 9-lowest, 0-undefined.): ");
             priority = scanner.nextInt();
             if (priority < 0 || priority > 9) {
               System.out.println("Invalid input. Please try again.");
@@ -184,17 +219,22 @@ public class CalendarDriver {
         }
         writer.write("PRIORITY:" + priority);
         writer.newLine();
+        System.out.println();
 
-        // TODO Summary Alan
+        //=========================================
         // Summary (3.8.1.12)
-        System.out.println("enter a summary of this event");
+        //=========================================
+        System.out.println("SUMMARY: ");
         scanner.nextLine();
         String summary = scanner.nextLine();
         writer.write("SUMMARY:" + summary);
         writer.newLine();
+        System.out.println();
 
         // TODO Alan
-        // for DTSTART (3.8.2.4)
+        //=========================================
+        // DTSTART (3.8.2.4)
+        //=========================================
         invalidInput = true;
         String startYear = null;
         int i_startYear= 0;
@@ -206,7 +246,7 @@ public class CalendarDriver {
         while (invalidInput) {
           try {
             invalidInput = false;
-            System.out.println("whats the date for the event? (YYYYMMDD)");
+            System.out.println("START DATE (YYYYMMDD): ");
             startYear = scanner.nextLine();
             if (!isValidDateStr(startYear)) {
               System.out.println("invalid date! Try again.");
@@ -227,11 +267,12 @@ public class CalendarDriver {
           //the following 3 "methods" won't work for numbers like 8 (missing leading 0)
           // I didn't have enough time to figure out how to validate a 24hr format.
           //I'm sure there has to be something on google.
+        System.out.println("START TIME:");
         invalidInput = true;
         while (invalidInput) {
           try {
             invalidInput = false;
-            System.out.println("whats the Hour for the event? (HH)");
+            System.out.println("\tHOURS (HH): ");
             startTime = scanner.nextInt();
 
             if (startTimeH < 0 || startTimeH > 24) {
@@ -250,7 +291,7 @@ public class CalendarDriver {
         while (invalidInput) {
           try {
             invalidInput = false;
-            System.out.println("whats the Minutes for the event? (HH)");
+            System.out.println("\tMINUTES (MM): ");
             startTime = scanner.nextInt();
 
             if (startTimeM < 0 || startTimeM > 59) {
@@ -269,7 +310,7 @@ public class CalendarDriver {
         while (invalidInput) {
           try {
             invalidInput = false;
-            System.out.println("whats the Seconds for the event? (SS)");
+            System.out.println("\tSECONDS (SS): ");
             startTime = scanner.nextInt();
 
             if (startTimeS < 0 || startTimeS > 59) {
@@ -289,12 +330,15 @@ public class CalendarDriver {
         String dtStart = "DTSTART:" + startYear + "T" + startTime;
         writer.write(dtStart);
         writer.newLine();
+        System.out.println();
 
         // TODO Alan
         // Note I added more restrictions to endtime, may need to store start
         // year and time to compare when we change these to methods. (so the initialization
         // to 0 will have to be erased. replaced with formal parameters I guess).
-        // for DTEND (3.8.2.2)
+        //=========================================
+        // DTEND (3.8.2.2)
+        //=========================================
         invalidInput = true;
         String endYear = null;
         int i_endYear;
@@ -353,9 +397,12 @@ public class CalendarDriver {
         String dtEnd = "DTEND:" + endYear + "T" + endTime;
         writer.write(dtEnd);
         writer.newLine();
+        System.out.println();
 
         // TODO Alan
-        // for Time zone identifier (3.8.3.1, and whatever other sections you need to be able to specify time zone
+        //=========================================
+        // for Time zone identifier (3.8.3.1)
+        //=========================================
         System.out.println("Time Zone, country? ex. America");
         scanner.nextLine();
         String country = scanner.nextLine();
@@ -363,11 +410,14 @@ public class CalendarDriver {
         String region = scanner.nextLine();
         writer.write("TZID:" + country + "/" + region);
         writer.newLine();
+        System.out.println();
 
         // end this event
         writer.write("END:VEVENT\n");
 
+        //=========================================
         // prompt if the user would like to add another event
+        //=========================================
         invalidInput = true;
         while (invalidInput) {
           invalidInput = false;
@@ -385,6 +435,7 @@ public class CalendarDriver {
           }
         }
 
+        System.out.println();
       }
       while (anotherEvent);
 
