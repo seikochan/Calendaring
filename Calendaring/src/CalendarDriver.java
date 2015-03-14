@@ -8,6 +8,7 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.TimeZone;
 import java.util.Calendar;
+import java.text.*;
 
 // Creates .ics Files
 
@@ -32,6 +33,21 @@ import java.util.Calendar;
  */
 public class CalendarDriver {
 
+  public static boolean isValidDateStr(String date) {
+    try {
+      SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+      sdf.setLenient(false);
+      sdf.parse(date);
+    }
+    catch (ParseException e) {
+      return false;
+    }
+    catch (IllegalArgumentException e) {
+      return false;
+    }
+    return true;
+  }
+  
   public static void main(String[] args) {
     // TODO print description of program
     Calendar calendar = Calendar.getInstance();
@@ -148,12 +164,10 @@ public class CalendarDriver {
         writer.newLine();
 
         // TODO Alan
-        // Note: I added a thisYear variable up top to compare since it doesn't make
-        // sense to have an event before the current year. Will prob have to split this
-        // in to 4 different methods and combine the output. date, hh, mm, ss.
         // for DTSTART (3.8.2.4)
         invalidInput = true;
-        int startYear = 0;
+        String startYear = null;
+        int i_startYear= 0;
         int startTimeH = 0;
         int startTimeM = 0;
         int startTimeS = 0;
@@ -163,11 +177,14 @@ public class CalendarDriver {
           try {
             invalidInput = false;
             System.out.println("whats the date for the event? (YYYYMMDD)");
-            startYear = scanner.nextInt();
-
-            if (startYear < thisDate) {
-              System.out.println("Can't have an event before today! Try again.");
+            startYear = scanner.nextLine();
+            if (!isValidDateStr(startYear)) {
+              System.out.println("invalid date! Try again.");
               invalidInput = true;
+            }
+            else
+            {
+              i_startYear = Integer.parseInt(startYear);
             }
           }
           catch (InputMismatchException e) {
@@ -177,6 +194,9 @@ public class CalendarDriver {
           }
         }
 
+          //the following 3 "methods" won't work for numbers like 8 (missing leading 0)
+          // I didn't have enough time to figure out how to validate a 24hr format.
+          //I'm sure there has to be something on google.
         invalidInput = true;
         while (invalidInput) {
           try {
@@ -200,7 +220,7 @@ public class CalendarDriver {
         while (invalidInput) {
           try {
             invalidInput = false;
-            System.out.println("whats the Hour for the event? (HH)");
+            System.out.println("whats the Minutes for the event? (HH)");
             startTime = scanner.nextInt();
 
             if (startTimeM < 0 || startTimeM > 59) {
@@ -234,6 +254,7 @@ public class CalendarDriver {
           }
         }
         
+        //remember to fix this when you figure out how to validate 24hr format.
         startTime = (startTimeH*10000) + (startTimeM*100) + (startTimeS);
         String dtStart = "DTSTART:" + startYear + "T" + startTime;
         writer.write(dtStart);
@@ -245,18 +266,27 @@ public class CalendarDriver {
         // to 0 will have to be erased. replaced with formal parameters I guess).
         // for DTEND (3.8.2.2)
         invalidInput = true;
-        int endYear = 0;
+        String endYear = null;
+        int i_endYear;
         int endTime = 0;
 
         while (invalidInput) {
           try {
             invalidInput = false;
             System.out.println("what year does the event end? (YYYYMMDD)");
-            endYear = scanner.nextInt();
-
-            if (endYear < startYear) {
-              System.out.println("Can't have the event ends before it starts! Enter a later date.");
+            endYear = scanner.nextLine();
+            if (!isValidDateStr(endYear)) {
+              System.out.println("invalid date! Try again.");
               invalidInput = true;
+            }
+            else
+            {
+              i_endYear = Integer.parseInt(endYear);
+              if (i_endYear < i_startYear)
+              {
+                System.out.println("Can't have the event ends before it starts! Enter a later date.");
+                invalidInput = true;
+              }
             }
           }
           catch (InputMismatchException e) {
@@ -272,7 +302,7 @@ public class CalendarDriver {
             invalidInput = false;
             System.out.println("when does the event end? (HHMMSS)");
             endTime = scanner.nextInt();
-
+            //need to fix this check, don't work for numbers like 239999 or 88, etc.
             if (endTime < 0 || endTime > 240000) {
               if (endTime < startTime) {
                 System.out.println("Can't end before you start! Enter an earlier time");
