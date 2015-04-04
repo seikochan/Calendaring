@@ -49,8 +49,8 @@ public class Event {
     this.endTime = endTime;
   }
   
-  
-  
-
-
+  @Override
+  public String toString(){
+    return (startDate+"T"+startTime+"-"+endDate+"T"+endTime);
+  }
 }

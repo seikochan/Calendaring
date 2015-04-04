@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.Iterator;
@@ -117,33 +118,403 @@ public class CalendarDriver {
     return true;
   }
 
-
-  private static void createiCalFile() {
-    BufferedWriter writer;
+  private static String getVersion() {
     boolean invalidInput = true;
-    boolean anotherEvent = false;
-    String newEventStr = "";
-
     int versionNum = 0;
+    String versionStr = "";
+    
+    while (invalidInput) {
+      invalidInput = false;
+
+      System.out.println("Choose a Version" + "\n\t1) 1.0 - vCalendar Format" + "\n\t2) 2.0 - iCalendar Format: ");
+
+      try {
+        versionNum = scanner.nextInt();
+        scanner.nextLine(); // clear '\n' from buffer
+
+        // scanner.nextLine();
+
+        // error checking
+        invalidInput = false;
+        switch (versionNum) {
+        case 1:
+          System.out.println("Sorry we do not support vCalendar Format, " + "please select a different version.");
+          invalidInput = true;
+          break;
+        case 2:
+          versionStr = "2.0";
+          break;
+        default:
+          System.out.println("Invalid Version selected.  Please select a number from 1-2.");
+          invalidInput = true;
+          break;
+        }
+      }
+      catch (InputMismatchException e) {
+        System.out.println("Invalid Input. Please try again.");
+        invalidInput = true;
+        scanner.nextLine(); // clear '\n' from buffer
+      }
+    } //end while
+    
+    System.out.println();
+    return versionStr;
+  } // end getVersion()
+
+  private static String getTZID(){
+      // TODO use TZDB
+      System.out.println("Enter Time Zone, country? ex. America");
+      String country = scanner.nextLine();
+      System.out.println("Time Zone, region? (replace space with '_' ex. New_york");
+      String region = scanner.nextLine();
+      
+      return (country + "/" + region);
+  } // end getTZID
+  
+  private static String getClassification(){
+    boolean invalidInput = true;
     int classNum = 0;
-    String location = "";
-    int priority = 0;
+    String classStr = "";
+    while (invalidInput) {
+      invalidInput = false;
 
-    String startDate = null;
-    String endDate = null;
+      System.out.println("Choose a Classification\n" + "\t1)PUBLIC\n" + "\t2)PRIVATE\n" + "\t3)CONFIDENTIAL: ");
+      classNum = scanner.nextInt();
+      // must get rid of trailing newline in scanner...
+      scanner.nextLine();
+
+      switch (classNum) {
+      case 1:
+        classStr = "PUBLIC";
+        break;
+      case 2:
+        classStr = "PRIVATE";
+        break;
+      case 3:
+        classStr = "CONFIDENTIAL";
+        break;
+      default:
+        System.out.println("Invalid classification selected.  Please provide a number from 1-3.");
+        invalidInput = true;
+      }
+    } //end while
+    
+    System.out.println();
+    return classStr;
+  } // end class
+  
+  private static String getLocation(){
+    System.out.println("Enter a Location: ");
+    String location = scanner.nextLine();
+    
+    System.out.println();
+    return location;
+  }
+  
+  private static String getPriority(){
+    boolean invalidInput = true;
+    int priority = -1;
+    
+    while (invalidInput) {
+      try {
+        invalidInput = false;
+        System.out.println("Choose a Priority (1-highest, 9-lowest, 0-undefined): ");
+        priority = scanner.nextInt();
+        scanner.nextLine();
+        if (priority < 0 || priority > 9) {
+          System.out.println("Invalid input. Please try again.");
+          invalidInput = true;
+        }
+      }
+      catch (InputMismatchException e) {
+        System.out.println("Invalid input.  Please try again.");
+        priority = -1;
+        invalidInput = true;
+      }
+    }
+    
+    System.out.println();
+    return priority+"";
+  }
+  
+  private static String getSummary(){
+    System.out.println("Enter a Summary: ");
+    String summary = scanner.nextLine();
+    
+    System.out.println();
+    return summary;
+  }
+  
+  private static String getDTStart(){
+    boolean invalidInput = true;
+    String startDate = null;  
     int iStartDate = 0;
-    int iEndDate = 0;
-
     String startTime = null;
-    String endTime = null;
     int iStartTime = 0;
+    String hourStr = "";
+    String minuteStr = "";
+    String secondStr = "";
+    
+ // check for a valid starting date
+    while (invalidInput) {
+      try {
+        invalidInput = false;
+        System.out.println("Enter the Start Date (YYYYMMDD): ");
+        startDate = scanner.nextLine();
+        if (!isValidDateStr(startDate)) {
+          System.out.println("Invalid date! Try again.");
+          invalidInput = true;
+        }
+        else {
+          iStartDate = Integer.parseInt(startDate);
+        }
+      }
+      catch (InputMismatchException e) {
+        System.out.println("Invalid input.  Please try again.");
+        scanner.nextLine();
+        invalidInput = true;
+      }
+      catch (NumberFormatException e) {
+        System.out.println("Invalid input.  Please try again.");
+        scanner.nextLine();
+        invalidInput = true;
+      }
+    }
+
+    // check for a valid start time
+    System.out.println("START TIME (Military Time):");
+
+    // get hour input
+    invalidInput = true;
+    while (invalidInput) {
+      try {
+        invalidInput = false;
+        System.out.print("\tHOURS (HH): ");
+        hourStr = scanner.nextLine();
+
+        if (!isValidUnitStr(HOURS, hourStr)) {
+          invalidInput = true;
+        }
+      }
+      catch (InputMismatchException e) {
+        System.out.println("Invalid input.  Please try again.");
+        scanner.nextLine();
+        invalidInput = true;
+      }
+    }
+
+    // get minute input
+    invalidInput = true;
+    while (invalidInput) {
+      try {
+        invalidInput = false;
+        System.out.print("\tMINUTES (MM): ");
+        minuteStr = scanner.nextLine();
+
+        if (!isValidUnitStr(MINS, minuteStr)) {
+          invalidInput = true;
+        }
+      }
+      catch (InputMismatchException e) {
+        System.out.println("Invalid input.  Please try again.");
+        scanner.nextLine();
+        invalidInput = true;
+      }
+    }
+
+    // get second input
+    invalidInput = true;
+    while (invalidInput) {
+      try {
+        invalidInput = false;
+        System.out.print("\tSECONDS (SS): ");
+        secondStr = scanner.nextLine();
+
+        if (!isValidUnitStr(SECS, secondStr)) {
+          invalidInput = true;
+        }
+      }
+      catch (InputMismatchException e) {
+        System.out.println("Invalid input.  Please try again.");
+        scanner.nextLine();
+        invalidInput = true;
+      }
+    }
+
+    startTime = hourStr + minuteStr + secondStr;
+    iStartTime = Integer.parseInt(startTime);
+    
+    return(startDate+"T"+startTime);
+  } // end getDTStart()
+  
+  private static String getDTEnd(int iStartDate, int iStartTime) {
+    boolean invalidInput = true;
+    String endDate = null;
+    int iEndDate = 0;
+    String endTime = null;
+    
     int iEndTime = 0;
     String hourStr = "";
     String minuteStr = "";
     String secondStr = "";
+    
+    // check for valid ending date
+    while (invalidInput) {
+      try {
+        invalidInput = false;
+        System.out.println("Enter the End Date (YYYYMMDD): ");
+        endDate = scanner.nextLine();
+        if (!isValidDateStr(endDate)) {
+          System.out.println("Invalid date! Try again.");
+          invalidInput = true;
+        }
+        else {
+          iEndDate = Integer.parseInt(endDate);
+          // make sure end date is after start date
+          if (iEndDate < iStartDate) {
+            System.out.println("Can't have the event end before it starts! Enter a later date.");
+            invalidInput = true;
+          }
+        }
+      }
+      catch (InputMismatchException e) {
+        System.out.println("Invalid input.  Please try again.");
+        scanner.nextLine();
+        invalidInput = true;
+      }
+      catch (NumberFormatException e) {
+        System.out.println("Invalid input.  Please try again.");
+        scanner.nextLine();
+        invalidInput = true;
+      }
+    }
 
-    // print description of mode
-    System.out.println(DESC_STR);
+    // check for a valid end time
+    invalidInput = true;
+    while (invalidInput) {
+      System.out.println("END TIME (Military Time):");
+      // get hour input
+      invalidInput = true;
+      while (invalidInput) {
+        try {
+          invalidInput = false;
+          System.out.print("\tHOURS (HH): ");
+          hourStr = scanner.nextLine();
+
+          if (!isValidUnitStr(HOURS, hourStr)) {
+            invalidInput = true;
+          }
+        }
+        catch (InputMismatchException e) {
+          System.out.println("Invalid input.  Please try again.");
+          scanner.nextLine();
+          invalidInput = true;
+        }
+      }
+
+      // get minute input
+      invalidInput = true;
+      while (invalidInput) {
+        try {
+          invalidInput = false;
+          System.out.print("\tMINUTES (MM): ");
+          minuteStr = scanner.nextLine();
+
+          if (!isValidUnitStr(MINS, minuteStr)) {
+            invalidInput = true;
+          }
+        }
+        catch (InputMismatchException e) {
+          System.out.println("Invalid input.  Please try again.");
+          scanner.nextLine();
+          invalidInput = true;
+        }
+      }
+
+      // get second input
+      invalidInput = true;
+      while (invalidInput) {
+        try {
+          invalidInput = false;
+          System.out.print("\tSECONDS (SS): ");
+          secondStr = scanner.nextLine();
+
+          if (!isValidUnitStr(SECS, secondStr)) {
+            invalidInput = true;
+          }
+        }
+        catch (InputMismatchException e) {
+          System.out.println("Invalid input.  Please try again.");
+          scanner.nextLine();
+          invalidInput = true;
+        }
+      }
+
+      endTime = hourStr + minuteStr + secondStr;
+      iEndTime = Integer.parseInt(endTime);
+
+      invalidInput = false;
+      if (iStartTime >= iEndTime) {
+        System.out.println("Can't have the event end before it starts! Enter a later time.");
+        invalidInput = true;
+      }
+    }
+    
+    System.out.println();
+    return (iEndDate + "T" + iEndTime);
+  }
+  
+  private static void writeVersion(BufferedWriter writer, String version) throws IOException{
+    writer.write("VERSION:"+version);    
+    writer.newLine();
+  }
+  
+  private static void writeTZID(BufferedWriter writer, String tzid) throws IOException {
+    writer.write("BEGIN:VTIMEZONE\n");   
+    writer.write("TZID:" + tzid + "\n");
+    
+    writer.write("BEGIN:STANDARD\n");
+    writer.write("TZOFFSETFROM:-1000\n" + "TZOFFSETTO:-1000\n" + "DTSTART:19700101T000000\n");
+    writer.write("END:STANDARD\n");
+    writer.write("END:VTIMEZONE\n");
+  }
+  
+  private static void writeClass(BufferedWriter writer, String classStr) throws IOException {
+    writer.write("CLASS:"+classStr);
+    writer.newLine();
+    // TODO what is iana-name and x-name?????
+  }
+  
+  private static void writeLocation(BufferedWriter writer, String loc) throws IOException{
+    writer.write("LOCATION:" + loc);
+    writer.newLine();
+  }
+  
+  private static void writePriority(BufferedWriter writer, String priority) throws IOException {
+    writer.write("PRIORITY:" + priority);
+    writer.newLine();
+  }
+  
+  private static void writeSummary(BufferedWriter writer, String summary) throws IOException {
+    writer.write("SUMMARY:" + summary);
+    writer.newLine();
+  }
+  
+  private static void writeDTStart(BufferedWriter writer, String dtstart) throws IOException {
+    writer.write("DTSTART:" + dtstart);
+    writer.newLine();
+  }
+
+  private static void writeDTEnd(BufferedWriter writer, String dtend) throws IOException {
+    writer.write("DTEND:" + dtend);
+    writer.newLine();
+  }
+  
+  private static void createUseriCalFile() {
+    BufferedWriter writer;
+    boolean invalidInput = true;
+    boolean anotherEvent = false;
+    String newEventStr = "";
 
     System.out.println("Please provide the following information...\n");
 
@@ -155,61 +526,12 @@ public class CalendarDriver {
       // =========================================
       // Version (section 3.7.4 of RFC 5545)
       // =========================================
-      writer.write("VERSION:");
-
-      invalidInput = true;
-      while (invalidInput) {
-        invalidInput = false;
-
-        System.out.println("Choose a Version" + "\n\t1) 1.0 - vCalendar Format" + "\n\t2) 2.0 - iCalendar Format: ");
-
-        try {
-          versionNum = scanner.nextInt();
-          scanner.nextLine(); // clear '\n' from buffer
-
-          // scanner.nextLine();
-
-          // error checking
-          invalidInput = false;
-          switch (versionNum) {
-          case 1:
-            System.out.println("Sorry we do not support vCalendar Format, " + "please select a different version.");
-            invalidInput = true;
-            break;
-          case 2:
-            writer.write("2.0");
-            break;
-          default:
-            System.out.println("Invalid Version selected.  Please select a number from 1-2.");
-            invalidInput = true;
-            break;
-          }
-        }
-        catch (InputMismatchException e) {
-          System.out.println("Invalid Input. Please try again.");
-          invalidInput = true;
-          scanner.nextLine(); // clear '\n' from buffer
-        }
-      }
-      writer.newLine();
-      System.out.println();
+      writeVersion(writer, getVersion());
 
       // =========================================
       // Time zone identifier (3.8.3.1)
       // =========================================
-      writer.write("BEGIN:VTIMEZONE\n");
-
-      // TODO use TZDB
-      System.out.println("Enter Time Zone, country? ex. America");
-      String country = scanner.nextLine();
-      System.out.println("Time Zone, region? (replace space with '_' ex. New_york");
-      String region = scanner.nextLine();
-      writer.write("TZID:" + country + "/" + region + "\n");
-
-      writer.write("BEGIN:STANDARD\n");
-      writer.write("TZOFFSETFROM:-1000\n" + "TZOFFSETTO:-1000\n" + "DTSTART:19700101T000000\n");
-      writer.write("END:STANDARD\n");
-      writer.write("END:VTIMEZONE\n");
+      writeTZID(writer, getTZID());
 
       do {
         // start a new event
@@ -218,288 +540,36 @@ public class CalendarDriver {
         // =========================================
         // Classification (3.8.1.3).
         // =========================================
-        writer.write("CLASS:");
-        invalidInput = true;
-        while (invalidInput) {
-          invalidInput = false;
-
-          System.out.println("Choose a Classification\n" + "\t1)PUBLIC\n" + "\t2)PRIVATE\n" + "\t3)CONFIDENTIAL: ");
-          classNum = scanner.nextInt();
-          // must get rid of trailing newline in scanner...
-          scanner.nextLine();
-
-          switch (classNum) {
-          case 1:
-            writer.write("PUBLIC");
-            break;
-          case 2:
-            writer.write("PRIVATE");
-            break;
-          case 3:
-            writer.write("CONFIDENTIAL");
-            break;
-          default:
-            System.out.println("Invalid classification selected.  Please provide a number from 1-3.");
-            invalidInput = true;
-          }
-        }
-        writer.newLine();
-        System.out.println();
-        // TODO what is iana-name and x-name?????
-
+        writeClass(writer,getClassification());
+        
         // =========================================
         // Location (3.8.1.7)
         // =========================================
-        System.out.println("Enter a Location: ");
-        location = scanner.nextLine();
-
-        writer.write("LOCATION:" + location);
-        writer.newLine();
-        System.out.println();
+        writeLocation(writer,getLocation());
 
         // =========================================
         // Priority (3.8.1.9)
-        // =========================================
-        invalidInput = true;
-        while (invalidInput) {
-          try {
-            invalidInput = false;
-            System.out.println("Choose a Priority (1-highest, 9-lowest, 0-undefined): ");
-            priority = scanner.nextInt();
-            if (priority < 0 || priority > 9) {
-              System.out.println("Invalid input. Please try again.");
-              invalidInput = true;
-            }
-          }
-          catch (InputMismatchException e) {
-            System.out.println("Invalid input.  Please try again.");
-            priority = -1;
-            scanner.nextLine();
-            invalidInput = true;
-          }
-        }
-        writer.write("PRIORITY:" + priority);
-        writer.newLine();
-        System.out.println();
+        // ========================================= 
+        writePriority(writer,getPriority());
 
         // =========================================
         // Summary (3.8.1.12)
         // =========================================
-        System.out.println("Enter a Summary: ");
-        scanner.nextLine();
-        String summary = scanner.nextLine();
-
-        writer.write("SUMMARY:" + summary);
-        writer.newLine();
-        System.out.println();
+        writeSummary(writer, getSummary());
 
         // =========================================
         // DTSTART (3.8.2.4)
         // =========================================
-
-        // check for a valid starting date
-        invalidInput = true;
-        while (invalidInput) {
-          try {
-            invalidInput = false;
-            System.out.println("Enter the Start Date (YYYYMMDD): ");
-            startDate = scanner.nextLine();
-            if (!isValidDateStr(startDate)) {
-              System.out.println("Invalid date! Try again.");
-              invalidInput = true;
-            }
-            else {
-              iStartDate = Integer.parseInt(startDate);
-            }
-          }
-          catch (InputMismatchException e) {
-            System.out.println("Invalid input.  Please try again.");
-            scanner.nextLine();
-            invalidInput = true;
-          }
-          catch (NumberFormatException e) {
-            System.out.println("Invalid input.  Please try again.");
-            scanner.nextLine();
-            invalidInput = true;
-          }
-        }
-
-        // check for a valid start time
-        System.out.println("START TIME (Military Time):");
-
-        // get hour input
-        invalidInput = true;
-        while (invalidInput) {
-          try {
-            invalidInput = false;
-            System.out.print("\tHOURS (HH): ");
-            hourStr = scanner.nextLine();
-
-            if (!isValidUnitStr(HOURS, hourStr)) {
-              invalidInput = true;
-            }
-          }
-          catch (InputMismatchException e) {
-            System.out.println("Invalid input.  Please try again.");
-            scanner.nextLine();
-            invalidInput = true;
-          }
-        }
-
-        // get minute input
-        invalidInput = true;
-        while (invalidInput) {
-          try {
-            invalidInput = false;
-            System.out.print("\tMINUTES (MM): ");
-            minuteStr = scanner.nextLine();
-
-            if (!isValidUnitStr(MINS, minuteStr)) {
-              invalidInput = true;
-            }
-          }
-          catch (InputMismatchException e) {
-            System.out.println("Invalid input.  Please try again.");
-            scanner.nextLine();
-            invalidInput = true;
-          }
-        }
-
-        // get second input
-        invalidInput = true;
-        while (invalidInput) {
-          try {
-            invalidInput = false;
-            System.out.print("\tSECONDS (SS): ");
-            secondStr = scanner.nextLine();
-
-            if (!isValidUnitStr(SECS, secondStr)) {
-              invalidInput = true;
-            }
-          }
-          catch (InputMismatchException e) {
-            System.out.println("Invalid input.  Please try again.");
-            scanner.nextLine();
-            invalidInput = true;
-          }
-        }
-
-        startTime = hourStr + minuteStr + secondStr;
-        iStartTime = Integer.parseInt(startTime);
-        writer.write("DTSTART:" + startDate + "T" + startTime);
-        writer.newLine();
-        System.out.println();
-
+        String start = getDTStart();
+        int iStartDate = Integer.parseInt(start.substring(0,8));
+        int iStartTime = Integer.parseInt(start.substring(9));
+        
+        writeDTStart(writer, start);
+        
         // =========================================
         // DTEND (3.8.2.2)
         // =========================================
-
-        // check for valid ending date
-        invalidInput = true;
-        while (invalidInput) {
-          try {
-            invalidInput = false;
-            System.out.println("Enter the End Date (YYYYMMDD): ");
-            endDate = scanner.nextLine();
-            if (!isValidDateStr(endDate)) {
-              System.out.println("Invalid date! Try again.");
-              invalidInput = true;
-            }
-            else {
-              iEndDate = Integer.parseInt(endDate);
-              // make sure end date is after start date
-              if (iEndDate < iStartDate) {
-                System.out.println("Can't have the event end before it starts! Enter a later date.");
-                invalidInput = true;
-              }
-            }
-          }
-          catch (InputMismatchException e) {
-            System.out.println("Invalid input.  Please try again.");
-            scanner.nextLine();
-            invalidInput = true;
-          }
-          catch (NumberFormatException e) {
-            System.out.println("Invalid input.  Please try again.");
-            scanner.nextLine();
-            invalidInput = true;
-          }
-        }
-
-        // check for a valid end time
-        invalidInput = true;
-        while (invalidInput) {
-          System.out.println("END TIME (Military Time):");
-          // get hour input
-          invalidInput = true;
-          while (invalidInput) {
-            try {
-              invalidInput = false;
-              System.out.print("\tHOURS (HH): ");
-              hourStr = scanner.nextLine();
-
-              if (!isValidUnitStr(HOURS, hourStr)) {
-                invalidInput = true;
-              }
-            }
-            catch (InputMismatchException e) {
-              System.out.println("Invalid input.  Please try again.");
-              scanner.nextLine();
-              invalidInput = true;
-            }
-          }
-
-          // get minute input
-          invalidInput = true;
-          while (invalidInput) {
-            try {
-              invalidInput = false;
-              System.out.print("\tMINUTES (MM): ");
-              minuteStr = scanner.nextLine();
-
-              if (!isValidUnitStr(MINS, minuteStr)) {
-                invalidInput = true;
-              }
-            }
-            catch (InputMismatchException e) {
-              System.out.println("Invalid input.  Please try again.");
-              scanner.nextLine();
-              invalidInput = true;
-            }
-          }
-
-          // get second input
-          invalidInput = true;
-          while (invalidInput) {
-            try {
-              invalidInput = false;
-              System.out.print("\tSECONDS (SS): ");
-              secondStr = scanner.nextLine();
-
-              if (!isValidUnitStr(SECS, secondStr)) {
-                invalidInput = true;
-              }
-            }
-            catch (InputMismatchException e) {
-              System.out.println("Invalid input.  Please try again.");
-              scanner.nextLine();
-              invalidInput = true;
-            }
-          }
-
-          endTime = hourStr + minuteStr + secondStr;
-          iEndTime = Integer.parseInt(endTime);
-
-          invalidInput = false;
-          if (iStartTime >= iEndTime) {
-            System.out.println("Can't have the event end before it starts! Enter a later time.");
-            invalidInput = true;
-          }
-        }
-
-        writer.write("DTEND:" + iEndDate + "T" + endTime);
-        writer.newLine();
-        System.out.println();
+        writeDTEnd(writer, getDTEnd(iStartDate, iStartTime));
 
         // end this event
         writer.write("END:VEVENT\n");
@@ -537,7 +607,6 @@ public class CalendarDriver {
       System.err.println(e.getMessage());
     }
     catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   } // end createiCalFile()
@@ -558,7 +627,7 @@ public class CalendarDriver {
     String date = "";
     String timeZone = "";
     
-    //TODO create a descrition str & print it
+    //TODO create a description str & print it
     
     // get User Input
     while (invalidInput) {
@@ -591,7 +660,8 @@ public class CalendarDriver {
         try{
           // get all the events from the .ics file
           ArrayList<Event> eventsArr = parseiCalFile(fileName, date, timeZone);
-          
+for(Event e:eventsArr){
+}
           //update the free time hash map
           calculateFreeTimeSlots(freeTimeSlots, eventsArr);
           
@@ -602,13 +672,34 @@ public class CalendarDriver {
       } // end if else
     }// end while
     
-    //create a .ics file for each entry in freeTimeSlots HashMap
-    for (Entry<String, String> entry : freeTimeSlots.entrySet()){
-      // TODO!!!!!!!!!!!!!!!!!!!!!!  
+    //create a .ics file that has an event for each entry in freeTimeSlots HashMap
+    // creating output file
+    BufferedWriter writer;
+    try {
+      writer = new BufferedWriter(new FileWriter(new File("free_time.ics")));
+
+      writer.write("BEGIN:VCALENDAR\n");
+      writeVersion(writer, "2.0");
+      writeTZID(writer,timeZone);
+  
+      //loop over all the entries and create an event for each
+      for (Entry<String, String> entry : freeTimeSlots.entrySet()){
+        // start a new event
+        writer.write("BEGIN:VEVENT\n");
+        writeClass(writer,"PUBLIC");
+        writePriority(writer,"9");
+        writeSummary(writer, "Free Time");
+        writeDTStart(writer, date+"T"+entry.getKey());
+        writeDTEnd(writer, date+"T"+entry.getValue());
+        writer.write("END:VEVENT\n");
+      }// end for
+      
+      writer.write("END:VCALENDAR\n");
+      writer.close();
     }
-    
-    
-    
+    catch (IOException e) {
+      e.printStackTrace();
+    } 
   } // end getFreeTimes
   
   // helper method to get event times in a .ics file
@@ -622,41 +713,37 @@ public class CalendarDriver {
     try {
       
       while((line = read.readLine()) != null){
-        //split the line in 2 at first ':' delimiter
-        String arr[] = line.split(":", 2);
-        
-        // locate correct property name
-        switch(arr[0]){
-        // TODO check that date and timeZone the same
-          case "BEGIN":
-            // check to see if it is a new event
-            if(line.equals("BEGIN:VEVENT")){
-              System.out.println("FOUND EVENT!");
-              Event event = new Event();
-              eventsArr.add(event);
-            }
-            break;
+        if(line.equals("BEGIN:VEVENT")){
+          Event event = new Event();
+          eventsArr.add(event);
           
-          case "DTSTART":
-            // format of DTSTART:YYYYMMDDTHHMMSS
-            eventsArr.get(eventIndex).setStartDate(line.substring(8, 16));
-            eventsArr.get(eventIndex).setStartTime(line.substring(17));
-            break;
-          
-          case "DTEND":
-            // format of DTEND:YYYYMMDDTHHMMSS
-            eventsArr.get(eventIndex).setEndDate(line.substring(8, 16));
-            eventsArr.get(eventIndex).setEndTime(line.substring(17));
-            break;  
-            
-          case "END":
-            if(line.equals("END:VEVENT")){
-              System.out.println("ENDED EVENT!");
-              eventIndex++;
-            }
-            break;
-        
-        } //end switch
+          boolean eventEnded = false;
+          while( (!eventEnded) && ((line = read.readLine()) != null) ){
+            //split the line in 2 at first ':' delimiter
+            String arr[] = line.split(":", 2);
+      
+            switch(arr[0]){
+              case "DTSTART":
+                // format of DTSTART:YYYYMMDDTHHMMSS
+                eventsArr.get(eventIndex).setStartDate(line.substring(8, 16));
+                eventsArr.get(eventIndex).setStartTime(line.substring(17));
+                break;
+              
+              case "DTEND":
+                // format of DTEND:YYYYMMDDTHHMMSS
+                eventsArr.get(eventIndex).setEndDate(line.substring(6, 14));
+                eventsArr.get(eventIndex).setEndTime(line.substring(15));
+                break;  
+                
+              case "END":
+                if(line.equals("END:VEVENT")){
+                  eventEnded = true;
+                  eventIndex++;
+                }
+                break;
+            } //end switch
+          } //end while
+        } //end if
       } // end while 
       
       read.close();
@@ -675,9 +762,10 @@ public class CalendarDriver {
       Event event = iter.next();
       int eventSTime = Integer.parseInt(event.getStartTime());
       int eventETime = Integer.parseInt(event.getEndTime());
-      
+
+      HashMap<String,String> timeMapCopy = (HashMap<String, String>) timeMap.clone();
       // loop over all the free time slots in the map
-      for (Entry<String, String> entry : timeMap.entrySet()){
+      for (Entry<String, String> entry : timeMapCopy.entrySet()){
         int freeSTime = Integer.parseInt(entry.getKey());
         int freeETime = Integer.parseInt(entry.getValue());
         
@@ -685,26 +773,45 @@ public class CalendarDriver {
         
         // if endTime of freeTimeSlot > event startTime > startTime of freeTimeSlot
         // then it means our event started during a free time slot so we need to adjust the map to say its busy
-        if( (eventSTime >= freeSTime) && (eventSTime < freeSTime) ){
-
+        if( (eventSTime >= freeSTime) && (eventSTime < freeETime) ){
           // case 1:
+          //    the event starts at the same time as the free time but ends before it
+          //            |---------free-------------|
+          //            |--event--|
+          if( (eventSTime == freeSTime) && (eventETime < freeETime)){
+            // then we need to replace the time slot with one that starts at the end of the event
+            //                    |----free--------|
+            timeMap.put(event.getEndTime(), entry.getValue());
+            timeMap.remove(entry.getKey());
+          }
+        
+          // case 2:
+          //    the event starts at the same time as the free time and ends after it (or at same time)
+          //            |---------free-------------|
+          //            |--event--------------------------|
+          else if( (eventSTime == freeSTime) && (eventETime >= freeETime) ){
+            // then we need to just remove the free time slot
+            //  
+            timeMap.remove(entry.getKey());
+          }
+          
+          // case 3:
           //    the event is within the free time slot
           //            |---------free-------------|
           //                     |--event--|
-          if( eventETime < freeETime){
+          else if( eventETime < freeETime){
             // then we need to "replace" this free time slot with 2 new ones
             //          |--free--|         |--free-|
             timeMap.put(event.getEndTime(), entry.getValue());
-            entry.setValue(event.getStartTime());
-            
+            timeMap.put(entry.getKey(),event.getStartTime()); 
           }
           
-           // case 2:
-           //    the event is ends at the same time as the free time slot
+           // case 4:
+           //    the event ends at the same time as the free time slot
            //            |---------free-------------|
            //                    |----event---------|
               
-          //case 3:
+          //case 5:
           //    the event is overlapping the free time slot
           //            |--------free--------------|
           //                     |--------event---------------|
@@ -712,14 +819,13 @@ public class CalendarDriver {
           else{
            // then just shorten the free time slot to the start of the event 
            // result:  |-free--|
-           entry.setValue(event.getStartTime());
+           timeMap.put(entry.getKey(), event.getStartTime());
           }
         } // end if
         
         // if endTime of freeTimeSlot > event endTime > startTime of freeTimeSlot
         // then it means our event started during a free time slot so we need to adjust the map to say its busy
-        else if( (eventETime >= freeSTime) && (eventETime < freeSTime) ){
-
+        else if( (eventETime >= freeSTime) && (eventETime < freeETime) ){
           // case 1:
           //    the event is within the free time slot
           //            |---------free-------------|
@@ -764,7 +870,8 @@ public class CalendarDriver {
         invalidInput = false;
 
         System.out.println("What would you like to do?\n" + "\t1) Import Events and Find Free Times Availiable\n"
-            + "\t2) Create an iCalendar text file\n");
+            + "\t2) Create an iCalendar text file\n"
+            + "\t3) Exit\n");
 
         try {
           numMode = scanner.nextInt();
@@ -777,14 +884,16 @@ public class CalendarDriver {
             getFreeTimes();
             break;
           case 2:
-            createiCalFile();
+            // print description of mode
+            System.out.println(DESC_STR);
+            createUseriCalFile();
             break;
           case 3:
             scanner.close();
             System.out.println("BYE BYE!");
             System.exit(0);
           default:
-            System.out.println("Invalid Mode selected.  Please select a number from 1-2.");
+            System.out.println("Invalid Mode selected.  Please select a number from 1-3.");
             invalidInput = true;
             break;
           } // end switch
