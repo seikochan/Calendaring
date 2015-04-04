@@ -55,9 +55,9 @@ public class CalendarDriver {
   // }
 
   private final static Scanner scanner = new Scanner(System.in);
-  private final static int HOURS = 0;
-  private final static int MINS = 1;
-  private final static int SECS = 2;
+  final static int HOURS = 0;
+  final static int MINS = 1;
+  final static int SECS = 2;
 
 
   protected static boolean isValidDateStr(String date) {
@@ -75,8 +75,7 @@ public class CalendarDriver {
     return true;
   }
 
-
-  private static boolean isValidUnitStr(int unitTime, String unitStr) {
+  protected static boolean isValidUnitStr(int unitTime, String unitStr) {
 
     if (unitStr.length() != 2) {
       System.out.println("Please follow the format (HH),(MM),(SS).");
@@ -118,7 +117,13 @@ public class CalendarDriver {
     return true;
   }
 
-  private static String getVersion() {
+  
+  //=======================================================
+  // PROPERTY HELPER METHODS
+  //-----------------------
+  // these methods get the .ics properties from the user
+  //=======================================================
+  protected static String getVersion() {
     boolean invalidInput = true;
     int versionNum = 0;
     String versionStr = "";
@@ -161,7 +166,7 @@ public class CalendarDriver {
     return versionStr;
   } // end getVersion()
 
-  private static String getTZID(){
+  protected static String getTZID(){
       // TODO use TZDB
       System.out.println("Enter Time Zone, country? ex. America");
       String country = scanner.nextLine();
@@ -171,7 +176,7 @@ public class CalendarDriver {
       return (country + "/" + region);
   } // end getTZID
   
-  private static String getClassification(){
+  protected static String getClassification(){
     boolean invalidInput = true;
     int classNum = 0;
     String classStr = "";
@@ -203,7 +208,7 @@ public class CalendarDriver {
     return classStr;
   } // end class
   
-  private static String getLocation(){
+  protected static String getLocation(){
     System.out.println("Enter a Location: ");
     String location = scanner.nextLine();
     
@@ -211,7 +216,7 @@ public class CalendarDriver {
     return location;
   }
   
-  private static String getPriority(){
+  protected static String getPriority(){
     boolean invalidInput = true;
     int priority = -1;
     
@@ -237,7 +242,7 @@ public class CalendarDriver {
     return priority+"";
   }
   
-  private static String getSummary(){
+  protected static String getSummary(){
     System.out.println("Enter a Summary: ");
     String summary = scanner.nextLine();
     
@@ -245,7 +250,7 @@ public class CalendarDriver {
     return summary;
   }
   
-  private static String getDTStart(){
+  protected static String getDTStart(){
     boolean invalidInput = true;
     String startDate = null;  
     int iStartDate = 0;
@@ -347,7 +352,7 @@ public class CalendarDriver {
     return(startDate+"T"+startTime);
   } // end getDTStart()
   
-  private static String getDTEnd(int iStartDate, int iStartTime) {
+  protected static String getDTEnd(int iStartDate, int iStartTime) {
     boolean invalidInput = true;
     String endDate = null;
     int iEndDate = 0;
@@ -464,6 +469,12 @@ public class CalendarDriver {
     return (iEndDate + "T" + iEndTime);
   }
   
+  //=======================================================
+  // WRITER HELPER METHODS
+  //-----------------------
+  // these methods write their corresponding properties to 
+  // meet the RFC5545 Internet Calendaring Standard
+  //=======================================================
   private static void writeVersion(BufferedWriter writer, String version) throws IOException{
     writer.write("VERSION:"+version);    
     writer.newLine();
@@ -612,7 +623,7 @@ public class CalendarDriver {
   } // end createiCalFile()
 
 
-  private static void getFreeTimes(){
+  protected static void getFreeTimes(){
     boolean invalidInput = true;
     boolean notDone = true;
     
@@ -703,7 +714,7 @@ for(Event e:eventsArr){
   } // end getFreeTimes
   
   // helper method to get event times in a .ics file
-  private static ArrayList<Event> parseiCalFile (String name, String date, String timeZone) throws FileNotFoundException {
+  protected static ArrayList<Event> parseiCalFile (String name, String date, String timeZone) throws FileNotFoundException {
     BufferedReader read = new BufferedReader(new FileReader(name));
     String line = "";
     int eventIndex = 0;
@@ -754,7 +765,12 @@ for(Event e:eventsArr){
     return eventsArr;
   } //end parseiCalFile
   
-  private static void calculateFreeTimeSlots (HashMap<String,String> timeMap, ArrayList<Event> events){
+  protected static void calculateFreeTimeSlots (HashMap<String,String> timeMap, ArrayList<Event> events){
+    if( (timeMap==null) || (events==null) ) {
+      System.err.println("timeMap or eventsList is null.");
+      return;
+    }
+    
     Iterator<Event> iter = events.iterator();
     
     // loop over all the events
@@ -767,8 +783,7 @@ for(Event e:eventsArr){
       // loop over all the free time slots in the map
       for (Entry<String, String> entry : timeMapCopy.entrySet()){
         int freeSTime = Integer.parseInt(entry.getKey());
-        int freeETime = Integer.parseInt(entry.getValue());
-        
+        int freeETime = Integer.parseInt(entry.getValue());     
         // compare the start time of the event to each free time slot
         
         // if endTime of freeTimeSlot > event startTime > startTime of freeTimeSlot
