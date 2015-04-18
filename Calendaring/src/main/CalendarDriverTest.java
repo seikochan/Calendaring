@@ -1,17 +1,30 @@
 package main;
 
+
 import static org.junit.Assert.*;
+import static java.lang.System.in;
+import static java.lang.System.setIn;
+import static org.junit.contrib.java.lang.system.TextFromStandardInputStream.*;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import main.CalendarDriver;
 import main.Event;
+import java.util.Scanner;
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.StringReader;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class CalendarDriverTest {
 
+  @Rule
+  public TextFromStandardInputStream systenInMock = emptyStandardInputStream();
+  
   @Before
   public void setUp() throws Exception {
   }
@@ -31,7 +44,7 @@ public class CalendarDriverTest {
     assertFalse(CalendarDriver.isValidDateStr(date));
     
     //test a date that is negative
-    date = "-1";
+    date = "-11";
     assertFalse(CalendarDriver.isValidDateStr(date));
     
     //test a date that isn't numbers
@@ -251,5 +264,152 @@ public class CalendarDriverTest {
     
     assertEquals(expectedResult,timeSlots);
   }
+ 
+  @Test
+  public void testVersion()
+  {
+    //checks for a returned 2.0 string if option 2 is chosen.
+    SystemInMock.provideText("2\n");
+    String expectedResult = "2.0";
+    assertEquals(expectedResult,CalendarDriver.getVersion());
+    
+    //enters invalid input(1). should loop back, then receives valid input (2)
+    SystemInMock.provideText("1\n2\n");
+    expectedResult = "2.0";
+    assertEquals(expectedResult,CalendarDriver.getVersion());
+  
+    // not sure how to test for a input loop in the case of non-valid inputs
+  }
+ 
+  @Test
+  public void testgetTZID()
+  {
+    SystemInMock.provideText("America\nHawaii\n");
+    String expectedResult = "America/Hawaii";
+    assertEquals(expectedResult,CalendarDriver.getTZID());
+  }
+  
+  @Test
+  public void testgetClassification()
+  {
+    SystemInMock.provideText("1\n");
+    String expectedResult = "PUBLIC";
+    assertEquals(expectedResult,CalendarDriver.getClassification());
+    
+    SystemInMock.provideText("2\n");
+    expectedResult = "PRIVATE";
+    assertEquals(expectedResult,CalendarDriver.getClassification());
+    
+    SystemInMock.provideText("3\n");
+    expectedResult = "CONFIDENTIAL";
+    assertEquals(expectedResult,CalendarDriver.getClassification());
+    
+    //test wrong int, should get looped back, then '1' is entered for valid input.
+    SystemInMock.provideText("5\n1\n");
+    expectedResult = "PUBLIC";
+    assertEquals(expectedResult,CalendarDriver.getClassification());
+    
+  //test invalid input, should get looped back, then '1' is entered for valid input.
+    SystemInMock.provideText("x\n1\n");
+    expectedResult = "PUBLIC";
+    assertEquals(expectedResult,CalendarDriver.getClassification());
+    
+  }
+  
+  @Test
+  public void testgetLocation()
+  {
+    SystemInMock.provideText("At home\n");
+    String expectedResult = "At home";
+    assertEquals(expectedResult,CalendarDriver.getLocation());
+  }
+  
+  @Test
+  public void testgetPriority()
+  {
+    SystemInMock.provideText("1\n");
+    String expectedResult = "1";
+    assertEquals(expectedResult,CalendarDriver.getPriority());
+    
+    SystemInMock.provideText("2\n");
+    expectedResult = "2";
+    assertEquals(expectedResult,CalendarDriver.getPriority());
+    
+    SystemInMock.provideText("3\n");
+    expectedResult = "3";
+    assertEquals(expectedResult,CalendarDriver.getPriority());
+    
+    SystemInMock.provideText("4\n");
+    expectedResult = "4";
+    assertEquals(expectedResult,CalendarDriver.getPriority());
+    
+    SystemInMock.provideText("5\n");
+    expectedResult = "5";
+    assertEquals(expectedResult,CalendarDriver.getPriority());
+    
+    SystemInMock.provideText("6\n");
+    expectedResult = "6";
+    assertEquals(expectedResult,CalendarDriver.getPriority());
+    
+    SystemInMock.provideText("7\n");
+    expectedResult = "7";
+    assertEquals(expectedResult,CalendarDriver.getPriority());
+    
+    SystemInMock.provideText("8\n");
+    expectedResult = "8";
+    assertEquals(expectedResult,CalendarDriver.getPriority());
+    
+    SystemInMock.provideText("9\n");
+    expectedResult = "9";
+    assertEquals(expectedResult,CalendarDriver.getPriority());
+    
+    //test invalid input(x), reloops and takes valid input(2)
+    SystemInMock.provideText("x\n2\n");
+    expectedResult = "2";
+    assertEquals(expectedResult,CalendarDriver.getPriority());
+    
+  //test invalid input(45), reloops and takes valid input(2)
+    SystemInMock.provideText("45\n2\n");
+    expectedResult = "2";
+    assertEquals(expectedResult,CalendarDriver.getPriority());
+  }
 
+  @Test
+  public void testgetSummary()
+  {
+    SystemInMock.provideText("this is a test of the summary.\n");
+    String expectedResult = "this is a test of the summary.";
+    assertEquals(expectedResult,CalendarDriver.getSummary());
+  }
+  
+  @Test
+  public void testgetDTStart()
+  {
+    SystemInMock.provideText("20150505\n10\n10\n10\n");
+    String expectedResult = "20150505T101010";
+    assertEquals(expectedResult,CalendarDriver.getDTStart());
+    
+    //enters invalid date first (earlier than today's date: 2011) before a valid entry.
+    SystemInMock.provideText("20110505\n20150505\n10\n10\n10\n");
+    expectedResult = "20150505T101010";
+    assertEquals(expectedResult,CalendarDriver.getDTStart());
+  }
+  
+  @Test
+  public void testgetDTEnd()
+  {
+    SystemInMock.provideText("20150505\n12\n10\n10\n");
+    String expectedResult = "20150505T121010";
+    assertEquals(expectedResult,CalendarDriver.getDTEnd(20150505,101010));
+    
+    //provides a time earlier than startTime, causes invalid input and should ask
+    //for new parameters.
+    SystemInMock.provideText("20150505\n09\n10\n10\n20150505\n12\n10\n10\n");
+    expectedResult = "20150505T121010";
+    assertEquals(expectedResult,CalendarDriver.getDTEnd(20150505,101010));
+    
+    
+  }
+   
+  
 }
