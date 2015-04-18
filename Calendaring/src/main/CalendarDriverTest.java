@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import main.CalendarDriver;
+import main.Event;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -122,7 +124,7 @@ public class CalendarDriverTest {
     Event event3;
     
     //test that program does not crash on null values
-    CalendarDriver.calculateFreeTimeSlots(timeSlots, events);
+    CalendarDriver.calculateFreeTimeSlots(timeSlots, events, false);
     
     //test when there are no events
     timeSlots = new HashMap<String,String>();
@@ -130,7 +132,7 @@ public class CalendarDriverTest {
     
     events = new ArrayList<>();
     
-    CalendarDriver.calculateFreeTimeSlots(timeSlots, events);
+    CalendarDriver.calculateFreeTimeSlots(timeSlots, events, false);
     
     expectedResult = new HashMap<>();
     expectedResult.put("000000","235959");
@@ -147,7 +149,7 @@ public class CalendarDriverTest {
     event1.setEndTime("070000");
     events.add(event1);
     
-    CalendarDriver.calculateFreeTimeSlots(timeSlots, events);
+    CalendarDriver.calculateFreeTimeSlots(timeSlots, events, false);
     
     expectedResult = new HashMap<>();
     expectedResult.put("000000","050000");
@@ -170,7 +172,7 @@ public class CalendarDriverTest {
     event2.setEndTime("153000");
     events.add(event2);
     
-    CalendarDriver.calculateFreeTimeSlots(timeSlots, events);
+    CalendarDriver.calculateFreeTimeSlots(timeSlots, events, false);
     
     expectedResult = new HashMap<>();
     expectedResult.put("000000","050000");
@@ -194,7 +196,7 @@ public class CalendarDriverTest {
     event2.setEndTime("153000");
     events.add(event2);
     
-    CalendarDriver.calculateFreeTimeSlots(timeSlots, events);
+    CalendarDriver.calculateFreeTimeSlots(timeSlots, events, false);
     
     expectedResult = new HashMap<>();
     expectedResult.put("000000","050000");
@@ -217,7 +219,7 @@ public class CalendarDriverTest {
     event2.setEndTime("235959");
     events.add(event2);
     
-    CalendarDriver.calculateFreeTimeSlots(timeSlots, events);
+    CalendarDriver.calculateFreeTimeSlots(timeSlots, events, false);
     
     expectedResult = new HashMap<>();
     
@@ -242,7 +244,7 @@ public class CalendarDriverTest {
     event3.setStartTime("114500");
     event3.setEndTime("235959");
     events.add(event3);
-    CalendarDriver.calculateFreeTimeSlots(timeSlots, events);
+    CalendarDriver.calculateFreeTimeSlots(timeSlots, events,false);
     
     expectedResult = new HashMap<>();
     expectedResult.put("043000","090000");

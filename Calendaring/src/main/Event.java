@@ -10,11 +10,14 @@ public class Event {
   private String startTime;
   private String endTime;
   
+  private int priority;
+
   public Event(){
     startDate = "";
     endDate = "";
     startTime = "";
     endTime = "";
+    priority = 0;
   }
 
   public String getStartDate() {
@@ -47,6 +50,14 @@ public class Event {
 
   public void setEndTime(String endTime) {
     this.endTime = endTime;
+  }
+  
+  public int getPriority() {
+    return priority;
+  }
+
+  public void setPriority(int priority) {
+    this.priority = priority;
   }
   
   @Override

@@ -1,4 +1,5 @@
 package main;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -75,6 +76,7 @@ public class CalendarDriver {
     return true;
   }
 
+
   protected static boolean isValidUnitStr(int unitTime, String unitStr) {
 
     if (unitStr.length() != 2) {
@@ -117,17 +119,17 @@ public class CalendarDriver {
     return true;
   }
 
-  
-  //=======================================================
+
+  // =======================================================
   // PROPERTY HELPER METHODS
-  //-----------------------
+  // -----------------------
   // these methods get the .ics properties from the user
-  //=======================================================
+  // =======================================================
   protected static String getVersion() {
     boolean invalidInput = true;
     int versionNum = 0;
     String versionStr = "";
-    
+
     while (invalidInput) {
       invalidInput = false;
 
@@ -160,23 +162,25 @@ public class CalendarDriver {
         invalidInput = true;
         scanner.nextLine(); // clear '\n' from buffer
       }
-    } //end while
-    
+    } // end while
+
     System.out.println();
     return versionStr;
   } // end getVersion()
 
-  protected static String getTZID(){
-      // TODO use TZDB
-      System.out.println("Enter Time Zone, country? ex. America");
-      String country = scanner.nextLine();
-      System.out.println("Time Zone, region? (replace space with '_' ex. New_york");
-      String region = scanner.nextLine();
-      
-      return (country + "/" + region);
+
+  protected static String getTZID() {
+    // TODO use TZDB
+    System.out.println("Enter Time Zone, country? ex. America");
+    String country = scanner.nextLine();
+    System.out.println("Time Zone, region? (replace space with '_' ex. New_york");
+    String region = scanner.nextLine();
+
+    return (country + "/" + region);
   } // end getTZID
-  
-  protected static String getClassification(){
+
+
+  protected static String getClassification() {
     boolean invalidInput = true;
     int classNum = 0;
     String classStr = "";
@@ -202,24 +206,26 @@ public class CalendarDriver {
         System.out.println("Invalid classification selected.  Please provide a number from 1-3.");
         invalidInput = true;
       }
-    } //end while
-    
+    } // end while
+
     System.out.println();
     return classStr;
   } // end class
-  
-  protected static String getLocation(){
+
+
+  protected static String getLocation() {
     System.out.println("Enter a Location: ");
     String location = scanner.nextLine();
-    
+
     System.out.println();
     return location;
   }
-  
-  protected static String getPriority(){
+
+
+  protected static String getPriority() {
     boolean invalidInput = true;
     int priority = -1;
-    
+
     while (invalidInput) {
       try {
         invalidInput = false;
@@ -237,30 +243,48 @@ public class CalendarDriver {
         invalidInput = true;
       }
     }
-    
+
     System.out.println();
-    return priority+"";
+    return priority + "";
   }
-  
-  protected static String getSummary(){
+
+
+  protected static String getSummary() {
     System.out.println("Enter a Summary: ");
     String summary = scanner.nextLine();
-    
+
     System.out.println();
     return summary;
   }
-  
-  protected static String getDTStart(){
+
+  protected static String getDate(){
+   boolean invalidInput = true;
+   String date = "";
+   
+    // get User Input
+      while (invalidInput) {
+        System.out.println("Date of these event(s) (YYYYMMDD):");
+        invalidInput = false;
+        date = scanner.nextLine();
+        if (!isValidDateStr(date)) {
+          System.out.println("Invalid date! Try again.");
+          invalidInput = true;
+        } // end if
+      } // end while
+      
+      return date;
+  }
+  protected static String getDTStart() {
     boolean invalidInput = true;
-    String startDate = null;  
+    String startDate = null;
     int iStartDate = 0;
     String startTime = null;
     int iStartTime = 0;
     String hourStr = "";
     String minuteStr = "";
     String secondStr = "";
-    
- // check for a valid starting date
+
+    // check for a valid starting date
     while (invalidInput) {
       try {
         invalidInput = false;
@@ -348,21 +372,22 @@ public class CalendarDriver {
 
     startTime = hourStr + minuteStr + secondStr;
     iStartTime = Integer.parseInt(startTime);
-    
-    return(startDate+"T"+startTime);
+
+    return (startDate + "T" + startTime);
   } // end getDTStart()
-  
+
+
   protected static String getDTEnd(int iStartDate, int iStartTime) {
     boolean invalidInput = true;
     String endDate = null;
     int iEndDate = 0;
     String endTime = null;
-    
+
     int iEndTime = 0;
     String hourStr = "";
     String minuteStr = "";
     String secondStr = "";
-    
+
     // check for valid ending date
     while (invalidInput) {
       try {
@@ -464,63 +489,72 @@ public class CalendarDriver {
         invalidInput = true;
       }
     }
-    
+
     System.out.println();
     return (iEndDate + "T" + iEndTime);
   }
-  
-  //=======================================================
+
+
+  // =======================================================
   // WRITER HELPER METHODS
-  //-----------------------
-  // these methods write their corresponding properties to 
+  // -----------------------
+  // these methods write their corresponding properties to
   // meet the RFC5545 Internet Calendaring Standard
-  //=======================================================
-  private static void writeVersion(BufferedWriter writer, String version) throws IOException{
-    writer.write("VERSION:"+version);    
+  // =======================================================
+  private static void writeVersion(BufferedWriter writer, String version) throws IOException {
+    writer.write("VERSION:" + version);
     writer.newLine();
   }
-  
+
+
   private static void writeTZID(BufferedWriter writer, String tzid) throws IOException {
-    writer.write("BEGIN:VTIMEZONE\n");   
+    writer.write("BEGIN:VTIMEZONE\n");
     writer.write("TZID:" + tzid + "\n");
-    
+
     writer.write("BEGIN:STANDARD\n");
     writer.write("TZOFFSETFROM:-1000\n" + "TZOFFSETTO:-1000\n" + "DTSTART:19700101T000000\n");
     writer.write("END:STANDARD\n");
     writer.write("END:VTIMEZONE\n");
   }
-  
+
+
   private static void writeClass(BufferedWriter writer, String classStr) throws IOException {
-    writer.write("CLASS:"+classStr);
+    writer.write("CLASS:" + classStr);
     writer.newLine();
     // TODO what is iana-name and x-name?????
   }
-  
-  private static void writeLocation(BufferedWriter writer, String loc) throws IOException{
+
+
+  private static void writeLocation(BufferedWriter writer, String loc) throws IOException {
     writer.write("LOCATION:" + loc);
     writer.newLine();
   }
-  
+
+
   private static void writePriority(BufferedWriter writer, String priority) throws IOException {
     writer.write("PRIORITY:" + priority);
     writer.newLine();
   }
-  
+
+
   private static void writeSummary(BufferedWriter writer, String summary) throws IOException {
     writer.write("SUMMARY:" + summary);
     writer.newLine();
   }
-  
+
+
   private static void writeDTStart(BufferedWriter writer, String dtstart) throws IOException {
     writer.write("DTSTART:" + dtstart);
     writer.newLine();
   }
 
+
   private static void writeDTEnd(BufferedWriter writer, String dtend) throws IOException {
     writer.write("DTEND:" + dtend);
     writer.newLine();
   }
-  
+
+
   private static void createUseriCalFile() {
     BufferedWriter writer;
     boolean invalidInput = true;
@@ -551,17 +585,17 @@ public class CalendarDriver {
         // =========================================
         // Classification (3.8.1.3).
         // =========================================
-        writeClass(writer,getClassification());
-        
+        writeClass(writer, getClassification());
+
         // =========================================
         // Location (3.8.1.7)
         // =========================================
-        writeLocation(writer,getLocation());
+        writeLocation(writer, getLocation());
 
         // =========================================
         // Priority (3.8.1.9)
-        // ========================================= 
-        writePriority(writer,getPriority());
+        // =========================================
+        writePriority(writer, getPriority());
 
         // =========================================
         // Summary (3.8.1.12)
@@ -572,11 +606,11 @@ public class CalendarDriver {
         // DTSTART (3.8.2.4)
         // =========================================
         String start = getDTStart();
-        int iStartDate = Integer.parseInt(start.substring(0,8));
+        int iStartDate = Integer.parseInt(start.substring(0, 8));
         int iStartTime = Integer.parseInt(start.substring(9));
-        
+
         writeDTStart(writer, start);
-        
+
         // =========================================
         // DTEND (3.8.2.2)
         // =========================================
@@ -623,270 +657,290 @@ public class CalendarDriver {
   } // end createiCalFile()
 
 
-  protected static void getFreeTimes(){
+  protected static HashMap<String,String> getFreeTimes(String date, String timeZone, boolean lowPriorityToo) {
     boolean invalidInput = true;
     boolean notDone = true;
-    
+
     /**
-     * Keys are Start Time of a Free Time Slot
+     * Keys are Start Time of a Free Time Slot 
      * Values are End Time of a Free Time Slot
      */
     HashMap<String, String> freeTimeSlots = new HashMap<>();
-    //start off with the whole day as a single free time slot
-    freeTimeSlots.put("000000","235959");
-    
-    String date = "";
-    String timeZone = "";
-    
-    //TODO create a description str & print it
-    
-    // get User Input
-    while (invalidInput) {
-      System.out.println("Date of these event(s) (YYYYMMDD):");
-      invalidInput = false;
-      date = scanner.nextLine();
-      if (!isValidDateStr(date)) {
-        System.out.println("Invalid date! Try again.");
-        invalidInput = true;
-      } // end if
-    } // end while
-    
-    System.out.println("Timezone of event(s): ");
-    timeZone = scanner.nextLine();
-    // TODO error check these
-    
+    // start off with the whole day as a single free time slot
+    freeTimeSlots.put("000000", "235959");
+
+    // TODO create a description str & print it
+
+
     // "import" .ics event files
-    System.out.println("Please provide the .ics file names of the events you have (Press 'Enter' after each file name and enter 'done' when finished.");
+    if(lowPriorityToo){
+      System.out
+      .println("Please provide the .ics file names of the people's schedule you would like to find meeting times for (Press 'Enter' after each file name and enter 'done' when finished.");
+    }else{
+      System.out
+      .println("Please provide the .ics file names of the events you have (Press 'Enter' after each file name and enter 'done' when finished.");
+    }
     
+
     invalidInput = true;
-    while(invalidInput || notDone){
+    while (invalidInput || notDone) {
       invalidInput = false;
       System.out.print("File Name (Must be a .ics file): ");
       String fileName = scanner.nextLine();
-      
-      if(fileName.equals("done")){
+
+      if (fileName.equals("done")) {
         notDone = false;
-      }else{
-      
-        try{
+      }
+      else {
+
+        try {
           // get all the events from the .ics file
           ArrayList<Event> eventsArr = parseiCalFile(fileName, date, timeZone);
-for(Event e:eventsArr){
-}
-          //update the free time hash map
-          calculateFreeTimeSlots(freeTimeSlots, eventsArr);
-          
-        }catch(FileNotFoundException e){
+          for (Event e : eventsArr) {
+          }
+          // update the free time hash map
+          calculateFreeTimeSlots(freeTimeSlots, eventsArr, lowPriorityToo);
+
+        }
+        catch (FileNotFoundException e) {
           System.out.println("File not found.  Please try again");
           invalidInput = true;
         }
       } // end if else
     }// end while
     
-    //create a .ics file that has an event for each entry in freeTimeSlots HashMap
+    return freeTimeSlots;
+  } // end getFreeTimes
+
+
+  protected static void getMeetingTimes() {
+    
+  }
+  
+  protected static void createIcsFile(HashMap<String,String> map, String date, String timeZone, String summary, String fileName){
+ // create a .ics file that has an event for each entry in freeTimeSlots HashMap
+    
     // creating output file
     BufferedWriter writer;
     try {
-      writer = new BufferedWriter(new FileWriter(new File("free_time.ics")));
+      writer = new BufferedWriter(new FileWriter(new File(fileName+".ics")));
 
       writer.write("BEGIN:VCALENDAR\n");
       writeVersion(writer, "2.0");
-      writeTZID(writer,timeZone);
-  
-      //loop over all the entries and create an event for each
-      for (Entry<String, String> entry : freeTimeSlots.entrySet()){
+      writeTZID(writer, timeZone);
+
+      // loop over all the entries and create an event for each
+      for (Entry<String, String> entry : map.entrySet()) {
         // start a new event
         writer.write("BEGIN:VEVENT\n");
-        writeClass(writer,"PUBLIC");
-        writePriority(writer,"9");
-        writeSummary(writer, "Free Time");
-        writeDTStart(writer, date+"T"+entry.getKey());
-        writeDTEnd(writer, date+"T"+entry.getValue());
+        writeClass(writer, "PUBLIC");
+        writePriority(writer, "9");
+        writeSummary(writer, summary);
+        writeDTStart(writer, date + "T" + entry.getKey());
+        writeDTEnd(writer, date + "T" + entry.getValue());
         writer.write("END:VEVENT\n");
       }// end for
-      
+
       writer.write("END:VCALENDAR\n");
       writer.close();
     }
     catch (IOException e) {
       e.printStackTrace();
-    } 
-  } // end getFreeTimes
+    }
+  }
   
   // helper method to get event times in a .ics file
-  protected static ArrayList<Event> parseiCalFile (String name, String date, String timeZone) throws FileNotFoundException {
+  protected static ArrayList<Event> parseiCalFile(String name, String date, String timeZone)
+      throws FileNotFoundException {
     BufferedReader read = new BufferedReader(new FileReader(name));
     String line = "";
     int eventIndex = 0;
-    
+
     ArrayList<Event> eventsArr = new ArrayList<Event>();
-    
+
     try {
-      
-      while((line = read.readLine()) != null){
-        if(line.equals("BEGIN:VEVENT")){
+
+      while ((line = read.readLine()) != null) {
+        if (line.equals("BEGIN:VEVENT")) {
           Event event = new Event();
           eventsArr.add(event);
-          
+
           boolean eventEnded = false;
-          while( (!eventEnded) && ((line = read.readLine()) != null) ){
-            //split the line in 2 at first ':' delimiter
+          while ((!eventEnded) && ((line = read.readLine()) != null)) {
+            // split the line in 2 at first ':' delimiter
             String arr[] = line.split(":", 2);
-      
-            switch(arr[0]){
-              case "DTSTART":
-                // format of DTSTART:YYYYMMDDTHHMMSS
-                eventsArr.get(eventIndex).setStartDate(line.substring(8, 16));
-                eventsArr.get(eventIndex).setStartTime(line.substring(17));
-                break;
+
+            switch (arr[0]) {
+            case "PRIORITY":
+              eventsArr.get(eventIndex).setPriority(Integer.parseInt(arr[1]));
+              break;
               
-              case "DTEND":
-                // format of DTEND:YYYYMMDDTHHMMSS
-                eventsArr.get(eventIndex).setEndDate(line.substring(6, 14));
-                eventsArr.get(eventIndex).setEndTime(line.substring(15));
-                break;  
-                
-              case "END":
-                if(line.equals("END:VEVENT")){
-                  eventEnded = true;
-                  eventIndex++;
-                }
-                break;
-            } //end switch
-          } //end while
-        } //end if
-      } // end while 
-      
+            case "DTSTART":
+              // format of DTSTART:YYYYMMDDTHHMMSS
+              eventsArr.get(eventIndex).setStartDate(line.substring(8, 16));
+              eventsArr.get(eventIndex).setStartTime(line.substring(17));
+              break;
+
+            case "DTEND":
+              // format of DTEND:YYYYMMDDTHHMMSS
+              eventsArr.get(eventIndex).setEndDate(line.substring(6, 14));
+              eventsArr.get(eventIndex).setEndTime(line.substring(15));
+              break;
+
+            case "END":
+              if (line.equals("END:VEVENT")) {
+                eventEnded = true;
+                eventIndex++;
+              }
+              break;
+            } // end switch
+          } // end while
+        } // end if
+      } // end while
+
       read.close();
     }
     catch (IOException e) {
       e.printStackTrace();
     }
     return eventsArr;
-  } //end parseiCalFile
-  
-  protected static void calculateFreeTimeSlots (HashMap<String,String> timeMap, ArrayList<Event> events){
-    if( (timeMap==null) || (events==null) ) {
+  } // end parseiCalFile
+
+
+  protected static void calculateFreeTimeSlots(HashMap<String, String> timeMap, ArrayList<Event> events, boolean lowPriorityToo) {
+    boolean skip = false;
+    
+    if ((timeMap == null) || (events == null)) {
       System.err.println("timeMap or eventsList is null.");
       return;
     }
-    
-    Iterator<Event> iter = events.iterator();
-    
-    // loop over all the events
-    while(iter.hasNext()){
-      Event event = iter.next();
-      int eventSTime = Integer.parseInt(event.getStartTime());
-      int eventETime = Integer.parseInt(event.getEndTime());
 
-      HashMap<String,String> timeMapCopy = (HashMap<String, String>) timeMap.clone();
-      // loop over all the free time slots in the map
-      for (Entry<String, String> entry : timeMapCopy.entrySet()){
-        int freeSTime = Integer.parseInt(entry.getKey());
-        int freeETime = Integer.parseInt(entry.getValue());     
-        // compare the start time of the event to each free time slot
-        
-        // if endTime of freeTimeSlot > event startTime > startTime of freeTimeSlot
-        // then it means our event started during a free time slot so we need to adjust the map to say its busy
-        if( (eventSTime >= freeSTime) && (eventSTime < freeETime) ){
-          // case 1:
-          //    the event starts at the same time as the free time but ends before it
-          //            |---------free-------------|
-          //            |--event--|
-          if( (eventSTime == freeSTime) && (eventETime < freeETime)){
-            // then we need to replace the time slot with one that starts at the end of the event
-            //                    |----free--------|
-            timeMap.put(event.getEndTime(), entry.getValue());
-            timeMap.remove(entry.getKey());
-          }
-        
-          // case 2:
-          //    the event starts at the same time as the free time and ends after it (or at same time)
-          //            |---------free-------------|
-          //            |--event--------------------------|
-          else if( (eventSTime == freeSTime) && (eventETime >= freeETime) ){
-            // then we need to just remove the free time slot
-            //  
-            timeMap.remove(entry.getKey());
-          }
-          
-          // case 3:
-          //    the event is within the free time slot
-          //            |---------free-------------|
-          //                     |--event--|
-          else if( eventETime < freeETime){
-            // then we need to "replace" this free time slot with 2 new ones
-            //          |--free--|         |--free-|
-            timeMap.put(event.getEndTime(), entry.getValue());
-            timeMap.put(entry.getKey(),event.getStartTime()); 
-          }
-          
-           // case 4:
-           //    the event ends at the same time as the free time slot
-           //            |---------free-------------|
-           //                    |----event---------|
-              
-          //case 5:
-          //    the event is overlapping the free time slot
-          //            |--------free--------------|
-          //                     |--------event---------------|
-            
-          else{
-           // then just shorten the free time slot to the start of the event 
-           // result:  |-free--|
-           timeMap.put(entry.getKey(), event.getStartTime());
-          }
-        } // end if
-        
-        // if endTime of freeTimeSlot > event endTime > startTime of freeTimeSlot
-        // then it means our event started during a free time slot so we need to adjust the map to say its busy
-        else if( (eventETime >= freeSTime) && (eventETime < freeETime) ){
-          // case 1:
-          //    the event is within the free time slot
-          //            |---------free-------------|
-          //                     |--event--|
-          // *accounted for in the previous if case so do nothing.....
-          
-         // case 2:
-         //    the event is starts at the same time as the free time slot
-         //            |---------free-------------|
-         //            |----event----------|
-            
-        //case 3:
-        //    the event is overlapping the free time slot
-        //             |--------free--------------|
-        //    |--------event---------------|
-            
-          if( eventSTime <= freeSTime ){
-           // then just shorten the free time slot to the end of the event 
-           // result:                      |-free-|
-           timeMap.put(event.getEndTime(), entry.getValue());
-           timeMap.remove(entry.getKey());
-         } // end if           
-        }// end else if  
-      }// end for loop over hashmap     
-    }// end while loop over events  
+    Iterator<Event> iter = events.iterator();
+
+    // loop over all the events
+    while (iter.hasNext()) {
+      Event event = iter.next();
+      
+      // if lowPriority events (defined as priorities of 6-9)want to be considered as potential meeting times
+      // must check each events priority
+      if(lowPriorityToo){
+        int priority = event.getPriority();
+        if( (priority>=6) && (priority<=9) ){
+          // if its low priority we want to skip this event since we want it to be considered as 
+          // one of the potential meeting times
+          skip = true;
+        }
+      }
+      
+      if(!skip){
+        int eventSTime = Integer.parseInt(event.getStartTime());
+        int eventETime = Integer.parseInt(event.getEndTime());
+
+        HashMap<String, String> timeMapCopy = (HashMap<String, String>) timeMap.clone();
+        // loop over all the free time slots in the map
+        for (Entry<String, String> entry : timeMapCopy.entrySet()) {
+          int freeSTime = Integer.parseInt(entry.getKey());
+          int freeETime = Integer.parseInt(entry.getValue());
+          // compare the start time of the event to each free time slot
+
+          // if endTime of freeTimeSlot > event startTime > startTime of freeTimeSlot
+          // then it means our event started during a free time slot so we need to adjust the map to say its busy
+          if ((eventSTime >= freeSTime) && (eventSTime < freeETime)) {
+            // case 1:
+            // the event starts at the same time as the free time but ends before it
+            // |---------free-------------|
+            // |--event--|
+            if ((eventSTime == freeSTime) && (eventETime < freeETime)) {
+              // then we need to replace the time slot with one that starts at the end of the event
+              // |----free--------|
+              timeMap.put(event.getEndTime(), entry.getValue());
+              timeMap.remove(entry.getKey());
+            }
+
+            // case 2:
+            // the event starts at the same time as the free time and ends after it (or at same time)
+            // |---------free-------------|
+            // |--event--------------------------|
+            else if ((eventSTime == freeSTime) && (eventETime >= freeETime)) {
+              // then we need to just remove the free time slot
+              //
+              timeMap.remove(entry.getKey());
+            }
+
+            // case 3:
+            // the event is within the free time slot
+            // |---------free-------------|
+            // |--event--|
+            else if (eventETime < freeETime) {
+              // then we need to "replace" this free time slot with 2 new ones
+              // |--free--| |--free-|
+              timeMap.put(event.getEndTime(), entry.getValue());
+              timeMap.put(entry.getKey(), event.getStartTime());
+            }
+
+            // case 4:
+            // the event ends at the same time as the free time slot
+            // |---------free-------------|
+            // |----event---------|
+
+            // case 5:
+            // the event is overlapping the free time slot
+            // |--------free--------------|
+            // |--------event---------------|
+
+            else {
+              // then just shorten the free time slot to the start of the event
+              // result: |-free--|
+              timeMap.put(entry.getKey(), event.getStartTime());
+            }
+          } // end if
+
+          // if endTime of freeTimeSlot > event endTime > startTime of freeTimeSlot
+          // then it means our event started during a free time slot so we need to adjust the map to say its busy
+          else if ((eventETime >= freeSTime) && (eventETime < freeETime)) {
+            // case 1:
+            // the event is within the free time slot
+            // |---------free-------------|
+            // |--event--|
+            // *accounted for in the previous if case so do nothing.....
+
+            // case 2:
+            // the event is starts at the same time as the free time slot
+            // |---------free-------------|
+            // |----event----------|
+
+            // case 3:
+            // the event is overlapping the free time slot
+            // |--------free--------------|
+            // |--------event---------------|
+
+            if (eventSTime <= freeSTime) {
+              // then just shorten the free time slot to the end of the event
+              // result: |-free-|
+              timeMap.put(event.getEndTime(), entry.getValue());
+              timeMap.remove(entry.getKey());
+            } // end if
+          }// end else if
+        }// end for loop over hashmap
+      }// end if    
+    }// end while loop over events
   }// end calculateFreeTimeSlots()
-  
+
+
   public static void main(String[] args) {
 
     boolean invalidInput = true;
 
     int numMode = 0;
 
-    // TODO
-    // split up all this (vvvvvvv) into smaller methods that can be tested easier
-
-    // TODO
-    // make prudier commenting
-    while(true){
+    while (true) {
       invalidInput = true;
       while (invalidInput) {
         invalidInput = false;
 
-        System.out.println("What would you like to do?\n" + "\t1) Import Events and Find Free Times Availiable\n"
-            + "\t2) Create an iCalendar text file\n"
-            + "\t3) Exit\n");
+        System.out.println("What would you like to do?\n" + "\t1) Create an iCalendar text file\n"
+            + "\t2) Import Events and Find Free Times Availiable\n"
+            + "\t3) Import Multiple People's Schedules and Find Possible Mutual Meeting Times\n" + "\t4) Exit\n");
 
         try {
           numMode = scanner.nextInt();
@@ -894,16 +948,29 @@ for(Event e:eventsArr){
 
           // error checking
           invalidInput = false;
+          String date = "";
+          String tz = "";
+          HashMap<String,String> freeTimes = null;
           switch (numMode) {
           case 1:
-            getFreeTimes();
-            break;
-          case 2:
             // print description of mode
             System.out.println(DESC_STR);
             createUseriCalFile();
             break;
+          case 2:
+            date = getDate();
+            tz = getTZID();
+            freeTimes = getFreeTimes(date, tz, false);
+            createIcsFile(freeTimes, date, tz, "Free Time", "free_times");
+            
+            break;
           case 3:
+            date = getDate();
+            tz = getTZID();
+            freeTimes = getFreeTimes(date, tz, true);
+            createIcsFile(freeTimes, date, tz, "Possible Meeting Time", "possible_meeting_times");
+            break;
+          case 4:
             scanner.close();
             System.out.println("BYE BYE!");
             System.exit(0);

@@ -63,5 +63,14 @@ public class EventTest {
     event.setEndTime(eTime);
     assertEquals(eTime, event.getEndTime());
   }
+  
+  @Test
+  public void testSetPriority() {
+    assertEquals("Default event should have an undefined priority, represented by a 0.", 0, event.getPriority());
+    
+    int priority = 1;
+    event.setPriority(priority);
+    assertEquals(priority, event.getPriority());
+  }
 
 }
